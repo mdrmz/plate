@@ -32,7 +32,7 @@ Bu mimari, plaka tanıma işleminin yoğun yükünü arayüzden tamamen ayırara
 ## ✨ Öne Çıkan Özellikler
 
 ### 🧠 **Kuantum Çekirdeği: Kenar Bilişim LPR Motoru** (Python)
-- **🚀 Son Teknoloji Plaka Tespiti:** Özel olarak eğitilmiş **YOLOv8** modeli sayesinde, zorlu açılarda ve düşük ışık koşullarında bile yüksek doğrulukla plaka tespiti yapar.
+- **🚀 Son Teknoloji Plaka Tespiti:** Özel olarak eğitilmiş **YOLO12** modeli sayesinde, zorlu açılarda ve düşük ışık koşullarında bile yüksek doğrulukla plaka tespiti yapar.
 - **🎯 Yüksek Başarımlı OCR:** Geleneksel OCR motorlarının zorlandığı durumlarda dahi üstün performans gösteren, derin öğrenme tabanlı **EasyOCR** boru hattı ile karakterleri okur.
 - **🔒 Kesintisiz Çalışma:** IP kamera bağlantısı koptuğunda veya bir hata oluştuğunda, çökmek yerine otonom olarak **yeniden bağlanmayı deneyen** akıllı `MJPEGStreamReader` yapısına sahiptir.
 - **⚡ Optimize Edilmiş Performans:** Raspberry Pi gibi kaynakları kısıtlı cihazlar için özel olarak optimize edilmiştir. "Headless" çalışma modu ve periyodik tarama özelliği ile CPU kullanımını minimumda tutar.
