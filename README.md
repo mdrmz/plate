@@ -1,6 +1,6 @@
 # 🅿️ HEZARFEN LPR© :: Otonom Araç Tanımlama ve Stratejik Analiz Platformu
 
-[![AI Engine](https://img.shields.io/badge/AI%20Engine-YOLOv8%20%2B%20DeepOCR-9932CC?style=for-the-badge)](https://ultralytics.com/)
+[![AI Engine](https://img.shields.io/badge/AI%20Engine-YOLO12%20%2B%20DeepOCR-9932CC?style=for-the-badge)](https://ultralytics.com/)
 [![Deployment](https://img.shields.io/badge/Deployment-Edge%20Ready-blueviolet?style=for-the-badge)](https://www.nvidia.com/en-us/glossary/edge-computing/)
 [![Backend](https://img.shields.io/badge/Platform-LAMP%20Stack-777BB4?style=for-the-badge)](https://www.php.net/)
 [![Status](https://img.shields.io/badge/Status-Aktif%20Geli%C5%9Ftirme-green?style=for-the-badge)](https://github.com/)
