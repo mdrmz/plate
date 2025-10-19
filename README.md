@@ -1,143 +1,75 @@
-# Piksel Analitik - Akıllı Plaka Tanıma Sistemi
+# 🅿️ Piksel Analitik - Yeni Nesil Plaka Tanıma Motoru (LPR Engine)
 
-Bu proje, gerçek zamanlı video akışlarından (IP Kamera, Webcam) plaka tespiti ve okuması yapan, sonuçları bir web API'sine gönderen ve modern bir yönetim paneli üzerinden sunan uçtan uca bir sistemdir. Sistem, özellikle Raspberry Pi gibi gömülü sistemler üzerinde "headless" (arayüzsüz) çalışacak şekilde optimize edilmiştir.
+[![Python](https://img.shields.io/badge/Python-3.9%2B-blue.svg)](https://www.python.org/)
+[![Framework](https://img.shields.io/badge/YOLO-v8-blueviolet.svg)](https://ultralytics.com/)
+[![OCR](https://img.shields.io/badge/OCR-EasyOCR-orange.svg)](https://github.com/JaidedAI/EasyOCR)
+[![Web](https://img.shields.io/badge/Backend-PHP%208-777BB4.svg)](https://www.php.net/)
+[![Database](https://img.shields.io/badge/Database-MariaDB-003545.svg)](https://mariadb.org/)
+[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
-![Yönetim Paneli Ekran Görüntüsü](https://i.imgur.com/K7wXf9T.png)
-
-## 核心 özellikler
-
-### Plaka Tanıma Uygulaması (Python)
-- **Gerçek Zamanlı Plaka Tespiti:** Yüksek doğruluklu, özel eğitilmiş **YOLOv8** modeli ile video akışlarındaki plakaları anlık olarak tespit eder.
-- **Güçlü Karakter Okuma (OCR):** Karakterleri okumak için **EasyOCR** motorunu kullanır. Bu, farklı ışık koşulları ve plaka tiplerine karşı yüksek dayanıklılık sağlar.
-- **"Headless" Çalışma Modu:** Raspberry Pi gibi cihazlarda kaynakları verimli kullanmak için herhangi bir grafik arayüz olmadan, arka planda bir servis olarak çalışır.
-- **Stabil Video Akışı:** Standart `cv2.VideoCapture`'ın kararsız olabildiği IP kameralar için, `requests` tabanlı **MJPEG stream reader** ile donma yapmayan ve bağlantı koptuğunda otomatik yeniden bağlanan bir yapıya sahiptir.
-- **API Entegrasyonu:** Tespit edilen her plakayı, anlık kamera görüntüsüyle birlikte belirtilen bir web API'sine güvenli bir şekilde gönderir.
-
-### Yönetim Paneli (PHP & MariaDB)
-- **Modern ve Duyarlı Arayüz:** **Bootstrap 5** ile tasarlanmış, mobil cihazlarda ve masaüstünde harika görünen estetik bir arayüz.
-- **Canlı Log Takibi:** Sistemin tespit ettiği tüm giriş/çıkış olaylarını anlık olarak listeler.
-- **Akıllı Durum Tespiti:** Tespit edilen plakaların sistemde **"Kayıtlı"** mı yoksa **"Yabancı"** mı olduğunu otomatik olarak belirler ve etiketler.
-- **Gelişmiş Filtreleme:** Kayıtları; plaka/isim, tarih aralığı, kayıt durumu ve işlem tipine göre detaylı bir şekilde filtreleme imkanı.
-- **Toplu İşlemler:** Listelenen kayıtlardan birden fazlasını seçerek tek seferde silme özelliği.
-- **Kullanıcı ve Araç Yönetimi (CRUD):** Sisteme yeni araç sahipleri ve araçları ekleme, mevcut olanları düzenleme ve silme için tam teşekküllü bir yönetim arayüzü.
-
-## 🚀 Kullanılan Teknolojiler
-
-- **Python Uygulaması:**
-  - Python 3.9+
-  - OpenCV
-  - Ultralytics (YOLOv8)
-  - EasyOCR & PyTorch
-  - Requests
-  - NumPy
-- **Web Paneli:**
-  - PHP 8+
-  - MariaDB (veya MySQL)
-  - Apache2
-  - Bootstrap 5
-
-## 🔧 Kurulum
-
-Sistemi Raspberry Pi veya Debian/Ubuntu tabanlı bir sunucuya kurmak için aşağıdaki adımları izleyin.
-
-### 1. Web Sunucusu (LAMP Stack) Kurulumu
-Öncelikle PHP panelinin çalışacağı ortamı hazırlayın.
-```bash
-# Sistem paketlerini güncelle
-sudo apt update && sudo apt upgrade -y
-
-# Gerekli web sunucusu bileşenlerini kur
-sudo apt install -y apache2 mariadb-server php libapache2-mod-php php-mysql
-```
-Kurulumdan sonra `sudo mysql_secure_installation` komutu ile veritabanı güvenliğini yapılandırın.
-
-### 2. Veritabanı Kurulumu
-MariaDB/MySQL'e bağlanarak gerekli veritabanını ve tabloları oluşturun.
-```bash
-sudo mysql
-```
-Açılan komut satırına aşağıdaki SQL kodlarını yapıştırın:
-```sql
-CREATE DATABASE plaka_sistemi CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-USE plaka_sistemi;
-
-CREATE TABLE `kullanicilar` (
-  `id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-  `ad` VARCHAR(100) NOT NULL,
-  `soyad` VARCHAR(100) NOT NULL,
-  `telefon` VARCHAR(20) DEFAULT NULL,
-  `kayit_tarihi` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP
-) ENGINE=InnoDB;
-
-CREATE TABLE `araclar` (
-  `id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-  `plaka` VARCHAR(20) NOT NULL UNIQUE,
-  `kullanici_id` INT NOT NULL,
-  `ozel_erisim` TINYINT(1) NOT NULL DEFAULT 0,
-  FOREIGN KEY (`kullanici_id`) REFERENCES `kullanicilar` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB;
-
-CREATE TABLE `giris_cikis_loglari` (
-  `id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-  `plaka` VARCHAR(20) NOT NULL,
-  `arac_id` INT DEFAULT NULL,
-  `islem_tipi` ENUM('giris', 'cikis') NOT NULL,
-  `islem_zamani` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `resim_yolu` VARCHAR(255) DEFAULT NULL,
-  FOREIGN KEY (`arac_id`) REFERENCES `araclar` (`id`) ON DELETE SET NULL
-) ENGINE=InnoDB;
-```
-
-### 3. Python Ortamı ve Kütüphaneleri Kurulumu
-Plaka tanıma uygulamasının çalışacağı izole ortamı oluşturun.
-```bash
-# Gerekli sistem bağımlılıklarını kur
-sudo apt install -y python3-pip python3-venv libopencv-dev python3-opencv
-
-# Proje klasörüne git ve sanal ortam oluştur
-cd /path/to/your/python_lpr
-python3 -m venv lpr_env
-source lpr_env/bin/activate
-
-# Gerekli Python kütüphanelerini yükle
-pip install --upgrade pip
-pip install opencv-python ultralytics easyocr torch torchvision requests mysql-connector-python
-```
-
-## ⚙️ Yapılandırma
-
-Çalıştırmadan önce aşağıdaki dosyaları kendi sisteminize göre yapılandırmanız gerekmektedir.
-
-1.  **Web Paneli Veritabanı Bağlantısı:**
-    - `web_panel/api/db_config.php` dosyasını açın.
-    - `$username`, `$password`, `$dbname` değişkenlerini kendi MariaDB kurulumunuza göre güncelleyin.
-
-2.  **Python Uygulaması Ayarları:**
-    - `python_lpr/run_headless.py` dosyasını açın.
-    - En üstteki `AYARLAR` bölümünü yapılandırın:
-        - `CAMERA_SOURCE`: Kameranızın RTSP/HTTP URL'sini veya webcam numarasını (`0`, `1`...) girin.
-        - `MODEL_PATH`: `best.pt` modelinin tam yolunu girin.
-        - `API_URL`: Web panelinizin `log_event.php` dosyasının tam URL'sini girin (Eğer aynı cihazda çalışıyorsa `http://localhost/api/log_event.php` yeterlidir).
-
-## ▶️ Nasıl Çalıştırılır?
-
-1.  **Web Panelini Aktif Et:** `web_panel/` klasörünün içindeki `api`, `admin`, ve `uploads` klasörlerini web sunucunuzun ana dizinine (`/var/www/html/`) kopyalayın. `uploads` klasörüne yazma izni verin (`sudo chown -R www-data:www-data /var/www/html/uploads`).
-
-2.  **Python Uygulamasını Başlat:**
-    ```bash
-    # Projenin Python klasörüne gidin
-    cd /path/to/your/python_lpr
-
-    # Sanal ortamı aktif edin
-    source lpr_env/bin/activate
-
-    # Uygulamayı başlatın
-    python run_headless.py
-    ```
-    Uygulama arka planda çalışmaya başlayacak, tespit ettiği plakaları API'ye gönderecek ve tüm işlemleri `headless_app.log` dosyasına kaydedecektir.
-
-3.  **Yönetim Panelini Görüntüle:**
-    - Tarayıcınızı açın ve `http://<RASPBERRY_PI_IP_ADRESI>/admin/` adresine gidin.
+**Piksel Analitik LPR Engine**, kurumsal düzeyde ihtiyaçları karşılamak üzere tasarlanmış, uçtan uca, yapay zeka tabanlı bir plaka tanıma ve araç takip sistemidir. Gerçek zamanlı video akışlarını analiz ederek elde ettiği verileri, modern bir web paneli üzerinden anlık olarak sunar. Sistem, özellikle Raspberry Pi gibi gömülü sistemlerde 7/24 stabil çalışacak şekilde optimize edilmiştir.
 
 ---
-**Piksel Analitik** adına Mehmet Durmaz tarafından geliştirilmiştir.
+
+### Proje Vizyonu
+Bu proje, sadece bir plaka okuma script'i olmanın ötesinde; otopark yönetimi, güvenlikli site girişleri, lojistik takip ve akıllı şehir uygulamaları gibi senaryolarda kullanılabilecek, ölçeklenebilir ve modüler bir platformun temelini oluşturur.
+
+![Yönetim Paneli Animasyonu](https://i.imgur.com/K7wXf9T.png)
+*<p align="center">Gelişmiş Filtreleme ve Anlık Durum Tespiti Sunan Modern Yönetim Paneli</p>*
+
+---
+
+## 🏛️ Sistem Mimarisi
+
+Sistem, birbirinden bağımsız ama birbiriyle mükemmel uyum içinde çalışan iki ana modülden oluşur: **Python LPR Motoru** ve **PHP Web Platformu**.
+
+```
+[IP KAMERA] --(MJPEG Stream)--> [PYTHON LPR MOTORU] --(HTTP POST)--> [PHP API] --> [MARIADB]
+                                                                                           ^
+                                                                                           |
+                                                                                     [PHP WEB PANELİ] --(Okuma/Yazma)--> [KULLANICI]
+```
+Bu mimari, plaka tanıma işleminin yoğun yükünü arayüzden tamamen ayırarak maksimum performans ve stabilite sağlar.
+
+---
+
+## ✨ Öne Çıkan Özellikler
+
+### 🧠 Python LPR Motoru (Beyin)
+- **🚀 Son Teknoloji Plaka Tespiti:** Özel olarak eğitilmiş **YOLOv8** modeli sayesinde, zorlu açılarda ve düşük ışık koşullarında bile yüksek doğrulukla plaka tespiti yapar.
+- **🎯 Yüksek Başarımlı OCR:** Geleneksel OCR motorlarının zorlandığı durumlarda dahi üstün performans gösteren, derin öğrenme tabanlı **EasyOCR** motoru ile karakterleri okur.
+- **🔒 Kesintisiz Çalışma:** IP kamera bağlantısı koptuğunda veya bir hata oluştuğunda, çökmek yerine otomatik olarak **yeniden bağlanmayı deneyen** akıllı `MJPEGStreamReader` yapısına sahiptir.
+- **⚡ Optimize Edilmiş Performans:** Raspberry Pi gibi kaynakları kısıtlı cihazlar için özel olarak optimize edilmiştir. "Headless" çalışma modu ve periyodik tarama özelliği ile CPU kullanımını minimumda tutar.
+
+### 💻 PHP Web Platformu (Kontrol Merkezi)
+- **🌐 Modern ve Etkileşimli Arayüz:** **Bootstrap 5** ile geliştirilmiş, her cihazda kusursuz çalışan, estetik ve kullanıcı dostu bir yönetim paneli.
+- **📊 Anlık Veri Akışı ve Analiz:** Tespit edilen tüm araç hareketlerini anlık olarak listeler. **"Kayıtlı"** ve **"Yabancı"** araçları renk kodlarıyla anında ayırt eder.
+- **🔍 Gelişmiş Arama ve Filtreleme:** Kayıtları; **plaka/isim**, **tarih aralığı**, **kayıt durumu** ve **işlem tipine** göre saniyeler içinde filtreleyerek aradığınız veriye anında ulaşmanızı sağlar.
+- **🛠️ Tam Teşekküllü CRUD Yönetimi:** Sisteme yeni kullanıcılar ve araçlar eklemek, mevcut olanları **düzenlemek** ve silmek için eksiksiz bir arayüz sunar.
+- **🔗 Akıllı Entegrasyon:** "Yabancı" olarak tespit edilen bir plakanın yanındaki tek bir butona basarak, o plakayı anında sisteme kaydetme formunu açar.
+- **🗑️ Güvenli Toplu İşlemler:** Yüzlerce kaydı tek bir tıkla seçip, hem veritabanından hem de sunucudan ilgili resim dosyalarıyla birlikte **kalıcı olarak silme** imkanı.
+
+---
+
+## 🔧 Kurulum ve Yapılandırma
+
+Detaylı kurulum adımları ve kodlar projenin diğer dosyalarında mevcuttur. Başlamak için `setup.sh` script'i (Linux/Pi için) veya manuel kurulum adımları izlenebilir.
+
+### Gerekli Yapılandırmalar:
+1.  **Veritabanı:** `web_panel/api/db_config.php` dosyasında veritabanı bağlantı bilgilerinizi girin.
+2.  **Python Motoru:** `python_lpr/run_headless.py` dosyasının en üstündeki `AYARLAR` bölümünü kendi sisteminize göre (kamera URL'si, model yolları vb.) düzenleyin.
+
+## ▶️ Kullanım
+
+Sistem kurulduktan ve yapılandırıldıktan sonra, plaka tanıma motoru arka planda bir servis olarak çalıştırılır. Yönetim paneline ise herhangi bir web tarayıcıdan erişilebilir.
+
+```bash
+# Python motorunu başlatmak için (örnek):
+cd /path/to/python_lpr
+source lpr_env/bin/activate
+python run_headless.py
+```
+
+---
+*Bu proje, **Mehmet Durmaz** tarafından **Piksel Analitik** için geliştirilmiştir.*
+*Akıllı Görüntü Analizi ve Karar Destek Sistemleri*
