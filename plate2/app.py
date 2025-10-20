@@ -24,7 +24,7 @@ if __name__ == "__main__":
     app = QApplication(sys.argv)
 
     # Model yolunu burada merkezi olarak yönet
-    model_file = "C:/Users/Win11/PycharmProjects/Plate/plate2/best.pt"
+    model_file = "best.pt"
 
     # Ana pencereyi oluştur ve göster
     logging.info("Uygulama başlatılıyor...")
