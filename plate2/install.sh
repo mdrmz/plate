@@ -1,68 +1,38 @@
 #!/bin/bash
 
 # Herhangi bir komutta hata olursa script'in çalışmasını anında durdurur.
-# Bu, hatanın tam olarak nerede olduğunu anında görmemizi sağlar.
 set -e
 
 # --- AYARLAR ---
-ENV_NAME="lpr_otonom_env"
+ENV_NAME="lpr_nihai_env"
 PYTHON_VERSION="3.11"
 # ---------------
 
 echo "#####################################################################"
-echo "### Piksel Analitik LPR - Tam Otonom Kurulum ve Doğrulama Scripti ###"
+echo "### Piksel Analitik LPR - Nihai Kurulum ve Doğrulama Script'i     ###"
 echo "#####################################################################"
 echo
 
-# --- ADIM 0: CONDA KURULUM KONTROLÜ ---
-echo "--- ADIM 0/4: Conda Kurulumu Kontrol Ediliyor ---"
-if ! command -v conda &> /dev/null; then
-    echo "--> UYARI: 'conda' komutu bulunamadı. Miniconda kurulacak..."
-    
-    # Sistem mimarisini ve işletim sistemini algıla
-    OS_TYPE=$(uname -s)
-    ARCH_TYPE=$(uname -m)
-    
-    if [ "$OS_TYPE" == "Linux" ]; then
-        if [ "$ARCH_TYPE" == "x86_64" ]; then
-            MINICONDA_URL="https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh"
-        elif [ "$ARCH_TYPE" == "aarch64" ]; then # Raspberry Pi 64-bit için
-            MINICONDA_URL="https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-aarch64.sh"
-        else
-            echo "❌ HATA: Desteklenmeyen Linux mimarisi: $ARCH_TYPE"; exit 1
-        fi
-    elif [ "$OS_TYPE" == "Darwin" ]; then # macOS için
-        if [ "$ARCH_TYPE" == "x86_64" ]; then # Intel Mac
-            MINICONDA_URL="https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-x86_64.sh"
-        elif [ "$ARCH_TYPE" == "arm64" ]; then # Apple Silicon Mac
-            MINICONDA_URL="https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-arm64.sh"
-        else
-            echo "❌ HATA: Desteklenmeyen macOS mimarisi: $ARCH_TYPE"; exit 1
-        fi
-    else
-        echo "❌ HATA: Desteklenmeyen işletim sistemi: $OS_TYPE"; exit 1
-    fi
-    
-    INSTALLER_SCRIPT="Miniconda3-latest-Installer.sh"
-    echo "--> Miniconda indiriliyor: $MINICONDA_URL"
-    # wget veya curl ile indir
-    wget -O "$INSTALLER_SCRIPT" "$MINICONDA_URL" 2>/dev/null || curl -L -o "$INSTALLER_SCRIPT" "$MINICONDA_URL"
-    
-    echo "--> Miniconda kuruluyor... Lütfen bekleyin."
-    # -b (batch) ile sessiz kurulum, -p ile yolu belirt
-    bash "$INSTALLER_SCRIPT" -b -p "$HOME/miniconda3"
-    
-    # Kurulumu temizle
-    rm "$INSTALLER_SCRIPT"
-    
-    # PATH'i bu script için geçici olarak güncelle ve gelecekteki oturumlar için conda'yı başlat
-    source "$HOME/miniconda3/bin/activate"
-    conda init bash
-    
-    echo "✅ Miniconda başarıyla kuruldu. Lütfen script bittikten sonra terminali yeniden başlatın."
-else
-    echo "✅ Conda zaten kurulu. Kurulum adımları devam ediyor..."
+# --- ADIM 0: SİSTEM ANALİZİ VE CONDA KONTROLÜ ---
+echo "--- ADIM 0/4: Sistem Analiz Ediliyor ve Conda Kontrol Ediliyor ---"
+OS_TYPE=$(uname -s)
+ARCH_TYPE=$(uname -m)
+
+echo "-> İşletim Sistemi: $OS_TYPE"
+echo "-> Mimari: $ARCH_TYPE"
+
+# DESTEKLENMEYEN 32-BIT KONTROLÜ
+if [ "$ARCH_TYPE" == "armv7l" ]; then
+    echo; echo "❌ HATA: Desteklenmeyen 32-bit (armv7l) mimari tespit edildi."
+    echo "Bu proje 64-bit bir işletim sistemi gerektirir."; exit 1
 fi
+echo "✅ Sistem mimarisi destekleniyor."
+
+if ! command -v conda &> /dev/null; then
+    echo "❌ HATA: 'conda' komutu bulunamadı. Lütfen önce Anaconda veya Miniconda kurun."
+    exit 1
+fi
+echo "✅ Conda kurulu."
 echo
 
 # --- ADIM 1: CONDA ORTAMINI OLUŞTURMA ---
@@ -73,69 +43,49 @@ if conda info --envs | grep -q "$ENV_NAME"; then
         echo "Mevcut '$ENV_NAME' ortamı siliniyor..."
         conda deactivate || true
         conda env remove -n "$ENV_NAME" -y
-        echo "Ortam başarıyla silindi."
     else
-        echo "Kurulum iptal edildi."
-        exit 0
+        echo "Kurulum iptal edildi."; exit 0
     fi
 fi
-echo "Yeni '$ENV_NAME' ortamı Python $PYTHON_VERSION ile oluşturuluyor..."
 conda create -n "$ENV_NAME" python="$PYTHON_VERSION" -y
 echo "✅ ADIM 1 BAŞARIYLA TAMAMLANDI!"
 echo
 
-# --- ADIM 2: KÜTÜPHANELERİ ADIM ADIM YÜKLEME ---
-echo "--- ADIM 2/4: Gerekli Kütüphaneler Tek Tek Kuruluyor ---"
+# --- ADIM 2: KÜTÜPHANELERİ CONDA İLE ADIM ADIM YÜKLEME ---
+echo "--- ADIM 2/4: Gerekli Kütüphaneler Conda ile Adım Adım Kuruluyor ---"
 eval "$(conda shell.bash hook)"
 conda activate "$ENV_NAME"
 
-# Kütüphane kurma ve test etme işlemini yapan bir fonksiyon
+# Kütüphane kurma ve test etme fonksiyonu
 install_and_verify() {
-    PACKAGE_NAME=$1
-    INSTALL_COMMAND=$2
-    VERIFY_COMMAND=$3
-    echo
-    echo "--> Kuruluyor: $PACKAGE_NAME..."
-    # set +e ile hata durumunda script'in devam etmesini sağlıyoruz (isteğe bağlı)
-    eval $INSTALL_COMMAND
-    if [ $? -eq 0 ]; then
-        echo "    ✅ Kurulum başarılı."
-        echo "--> Doğrulanıyor: $PACKAGE_NAME..."
-        if eval $VERIFY_COMMAND; then
-            echo "    ✅ Doğrulama başarılı."
-        else
-            echo "    ❌ DOĞRULAMA HATASI: $PACKAGE_NAME kuruldu ama import edilemiyor!"
-            exit 1 # Doğrulama hatası kritikse çık
-        fi
-    else
-        echo "    ❌ KURULUM HATASI: $PACKAGE_NAME kurulamadı."
-        exit 1 # Kurulum hatası kritikse çık
-    fi
+    PACKAGE_NAME=$1; INSTALL_COMMAND=$2; VERIFY_COMMAND=$3
+    echo; echo "--> Kuruluyor: $PACKAGE_NAME...";
+    if eval $INSTALL_COMMAND; then
+        echo "    ✅ Kurulum başarılı."; echo "--> Doğrulanıyor: $PACKAGE_NAME...";
+        if eval $VERIFY_COMMAND; then echo "    ✅ Doğrulama başarılı."; else echo "    ❌ DOĞRULAMA HATASI!"; exit 1; fi
+    else echo "    ❌ KURULUM HATASI!"; exit 1; fi
 }
 
-# Şimdi fonksiyonu her bir kütüphane için ayrı ayrı çağırıyoruz
+# --- Adım 2.1: PyTorch (Donanımla Uyumlu CPU Versiyonu) ---
 install_and_verify "PyTorch (CPU Uyumlu)" \
                    "conda install pytorch torchvision torchaudio cpuonly -c pytorch -y" \
                    "python -c 'import torch; print(f\"    -> Versiyon: {torch.__version__}\")'"
 
-install_and_verify "OpenCV" \
-                   "conda install -c conda-forge opencv -y" \
-                   "python -c 'import cv2; print(f\"    -> Versiyon: {cv2.__version__}\")'"
+# --- Adım 2.2: Kalan Tüm Kütüphaneler (Tek Seferde) ---
+# Conda'nın en iyi uyumluluğu bulabilmesi için kalanları tek bir komutta kurmak en sağlıklısıdır.
+# Ama her birini ayrı ayrı test edeceğiz.
+install_and_verify "Ana Kütüphaneler (OpenCV, Pillow, Ultralytics, EasyOCR)" \
+                   "conda install -c conda-forge opencv ultralytics easyocr pillow=9.5.0 -y" \
+                   "python -c 'import cv2; import ultralytics; import easyocr; from PIL import Image; print(\"    -> Başarıyla import edildi.\")'"
 
-install_and_verify "Pillow (Uyumlu Sürüm)" \
-                   "pip install Pillow==9.5.0" \
-                   "python -c 'from PIL import Image; print(f\"    -> Versiyon: {Image.__version__}\")'"
+# --- Adım 2.3: PySide6 (GUI Kütüphanesi) ---
+install_and_verify "PySide6 (GUI Kütüphanesi)" \
+                   "conda install -c conda-forge pyside6 -y" \
+                   "python -c 'from PySide6.QtWidgets import QApplication; print(\"    -> Başarıyla import edildi.\")'"
 
-install_and_verify "Ultralytics (YOLO)" \
-                   "pip install ultralytics" \
-                   "python -c 'import ultralytics; print(\"    -> Başarıyla import edildi.\")'"
-
-install_and_verify "EasyOCR" \
-                   "pip install easyocr" \
-                   "python -c 'import easyocr; print(\"    -> Başarıyla import edildi.\")'"
-
-install_and_verify "Yardımcı Kütüphaneler" \
-                   "pip install requests mysql-connector-python" \
+# --- Adım 2.4: Diğer Yardımcı Kütüphaneler ---
+install_and_verify "Yardımcı Kütüphaneler (requests, mysql-connector)" \
+                   "conda install -c conda-forge requests mysql-connector-python -y" \
                    "python -c 'import requests; import mysql.connector; print(\"    -> Başarıyla import edildi.\")'"
 
 echo "✅ ADIM 2 BAŞARIYLA TAMAMLANDI!"
@@ -146,24 +96,13 @@ echo "--- ADIM 3/4: Nihai Uyumluluk Kontrolü ---"
 python -c "
 print('Nihai uyumluluk testi başlatılıyor...')
 try:
-    import torch
-    import torchvision
-    import easyocr
-    import ultralytics
-    import cv2
-    import requests
+    import torch, torchvision, easyocr, ultralytics, cv2, requests
     import mysql.connector
     from PIL import Image
-
-    print('\n--- KÜTÜPHANE ÖZETİ ---')
-    print(f'PyTorch:     {torch.__version__}')
-    print(f'Torchvision: {torchvision.__version__}')
-    print(f'Pillow:      {Image.__version__}')
-    print('-------------------------')
-    print('✅ BAŞARILI: TÜM KRİTİK KÜTÜPHANELER BİRLİKTE UYUM İÇİNDE ÇALIŞIYOR!')
-
-except ImportError as e:
-    print(f'❌ NİHAİ TEST BAŞARISIZ: Bir kütüphane import edilemedi: {e}')
+    from PySide6.QtCore import QObject
+    print('✅ BAŞARILI: TÜM KÜTÜPHANELER SORUNSUZ ÇALIŞIYOR!')
+except Exception as e:
+    print(f'❌ NİHAİ TEST BAŞARISIZ: Hata: {e}')
     exit(1)
 "
 echo "✅ ADIM 3 BAŞARIYLA TAMAMLANDI!"
@@ -175,15 +114,16 @@ echo "############################################################"
 echo "### TÜM KURULUM ADIMLARI BAŞARIYLA TAMAMLANDI! ###"
 echo "############################################################"
 echo
-echo "ÖNEMLİ: Yeni Conda kurulumunun tam olarak aktif olması için"
-echo "lütfen bu terminal penceresini KAPATIP YENİDEN AÇIN."
+echo "ÖNEMLİ: Kurulumun tam aktif olması için bu terminali"
+echo "lütfen KAPATIP YENİDEN AÇIN."
 echo
 echo "Yeni terminalde uygulamayı çalıştırmak için:"
 echo "1. 'conda activate $ENV_NAME' komutunu çalıştırın."
 echo "2. Proje ana dizinindeyken 'python run_headless.py' komutunu çalıştırın."
 echo
-echo
-echo "############################################################"
-echo "### Piksel Analitik! ###"
-echo "############################################################"
-echo
+echo "#############################################################"
+echo "# Script, Piksel Analitik adına Mehmet Durmaz Tarafından          #"
+echo "# özel olarak hazırlanmıştır. İyi günlerde kullanın!          #"
+echo "# Piksel Analitik#"
+echo "#https://pikselanalitik.com #"
+echo "#############################################################"
