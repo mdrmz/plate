@@ -1,0 +1,33 @@
+2025-10-20 10:29:10,186 - INFO - Uygulama başlatılıyor...
+2025-10-20 10:29:11,340 - INFO - Worker thread'inde LPR motoru yükleniyor (best.pt)...
+2025-10-20 10:29:11,482 - WARNING - Neither CUDA nor MPS are available - defaulting to CPU. Note: This module is much faster with a GPU.
+2025-10-20 10:29:11,490 - WARNING - Downloading detection model, please wait. This may take several minutes depending upon your network connection.
+2025-10-20 10:29:16,528 - INFO - Download complete
+2025-10-20 10:29:16,528 - WARNING - Downloading recognition model, please wait. This may take several minutes depending upon your network connection.
+2025-10-20 10:29:18,142 - INFO - Download complete.
+2025-10-20 10:29:18,852 - INFO - [giris] Stream başlatıldı: 0
+2025-10-20 10:29:19,173 - INFO - [giris] 30 saniye geçti, plaka taraması yapılıyor...
+2025-10-20 10:29:21,822 - ERROR - [cikis] Kaynak açılamadı: 1
+2025-10-20 10:29:22,282 - ERROR - [cikis] Kaynak açılamadı: 1
+2025-10-20 10:29:23,026 - INFO - LPR motoru başarıyla yüklendi.
+2025-10-20 10:29:23,379 - INFO - [giris] Stream durduruldu.
+2025-10-20 10:29:26,135 - INFO - Uygulama kapatılıyor...
+2025-10-20 10:29:26,136 - INFO - [giris] Stream durduruldu.
+2025-10-20 10:29:26,137 - INFO - [cikis] Stream durduruldu.
+2025-10-20 10:32:22,612 - INFO - Uygulama başlatılıyor...
+2025-10-20 10:32:22,633 - INFO - Worker thread'inde LPR motoru yükleniyor (best.pt)...
+2025-10-20 10:32:22,829 - WARNING - Neither CUDA nor MPS are available - defaulting to CPU. Note: This module is much faster with a GPU.
+2025-10-20 10:32:27,652 - INFO - LPR motoru başarıyla yüklendi.
+2025-10-20 10:32:28,694 - ERROR - [giris] Kaynak açılamadı: http://admin:123456@192.168.1.34/cgi-bin/snapshot.cgi?stream=0
+2025-10-20 10:32:31,794 - ERROR - [giris] Kaynak açılamadı: http://admin:123456@192.168.1.34/cgi-bin/snapshot.cgi?stream=0
+2025-10-20 10:32:34,868 - ERROR - [giris] Kaynak açılamadı: http://admin:123456@192.168.1.34/cgi-bin/snapshot.cgi?stream=0
+2025-10-20 10:32:34,898 - INFO - Uygulama kapatılıyor...
+2025-10-20 10:32:34,898 - INFO - [giris] Stream durduruldu.
+2025-10-20 10:32:34,898 - INFO - [cikis] Stream durduruldu.
+2025-10-20 10:32:34,905 - INFO - Uygulama kapatılıyor...
+2025-10-20 10:32:34,906 - INFO - [giris] Stream durduruldu.
+2025-10-20 10:32:34,906 - INFO - [cikis] Stream durduruldu.
+2025-10-20 10:34:17,941 - INFO - Uygulama başlatılıyor...
+2025-10-20 10:34:17,963 - INFO - Worker thread'inde LPR motoru yükleniyor (best.pt)...
+2025-10-20 10:34:18,110 - WARNING - Neither CUDA nor MPS are available - defaulting to CPU. Note: This module is much faster with a GPU.
+2025-10-20 10:34:23,015 - INFO - LPR motoru başarıyla yüklendi.

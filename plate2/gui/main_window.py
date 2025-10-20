@@ -10,7 +10,7 @@ import numpy as np
 # Gerekli importlar
 from .camera_widget import CameraWidget
 from .worker import Worker
-from .api_manager import APIManager
+from core_engine.api_manager import APIManager
 
 # OMP Hatası için en üste ekliyoruz
 os.environ['KMP_DUPLICATE_LIB_OK'] = 'TRUE'
