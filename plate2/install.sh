@@ -4,8 +4,7 @@
 set -e
 
 # --- AYARLAR ---
-# Kurulacak Conda ortamının adı ve Python versiyonu
-ENV_NAME="lpr_conda_env"
+ENV_NAME="lpr_conda_final"
 PYTHON_VERSION="3.11"
 # ---------------
 
@@ -17,8 +16,7 @@ echo
 # --- ÖN KONTROL: Conda Kurulu mu? ---
 if ! command -v conda &> /dev/null
 then
-    echo "❌ HATA: 'conda' komutu bulunamadı."
-    echo "Lütfen devam etmeden önce Anaconda veya Miniconda'yı kurduğunuzdan emin olun."
+    echo "❌ HATA: 'conda' komutu bulunamadı. Lütfen Anaconda veya Miniconda'yı kurun."
     exit 1
 fi
 
@@ -30,10 +28,8 @@ if conda info --envs | grep -q "$ENV_NAME"; then
         echo "Mevcut '$ENV_NAME' ortamı siliniyor..."
         conda deactivate || true
         conda env remove -n "$ENV_NAME" -y
-        echo "Ortam başarıyla silindi."
     else
-        echo "Kurulum iptal edildi."
-        exit 0
+        echo "Kurulum iptal edildi."; exit 0
     fi
 fi
 echo "Yeni '$ENV_NAME' ortamı Python $PYTHON_VERSION ile oluşturuluyor..."
@@ -43,16 +39,14 @@ echo
 
 # --- ADIM 2: KÜTÜPHANELERİ CONDA İLE ADIM ADIM YÜKLEME ---
 echo "--- ADIM 2/3: Gerekli Kütüphaneler Conda ile Tek Tek Kuruluyor ---"
-# Conda'yı script içinde aktif hale getirmek için
 eval "$(conda shell.bash hook)"
 conda activate "$ENV_NAME"
 
 # --- Adım 2.1: PyTorch (Donanımla Uyumlu CPU Versiyonu) ---
 echo
 echo "--> Adım 2.1: PyTorch (Donanımla Uyumlu CPU Versiyonu) kuruluyor..."
-# Bu, 'Yönerge kuraldışı' hatasını çözen en kritik adımdır.
-# Eski donanımlarla uyumluluğu yüksek, stabil bir versiyonu seçiyoruz.
-conda install pytorch=1.13.1 torchvision=0.14.1 torchaudio=0.13.1 cpuonly -c pytorch -y
+# VERSİYON BELİRTMİYORUZ. Conda'nın kendisi, Python 3.11 ve CPU ile uyumlu en iyisini bulacak.
+conda install pytorch torchvision torchaudio cpuonly -c pytorch -y
 echo "--> Doğrulama: PyTorch import ediliyor..."
 python -c "import torch; print(f'    -> PyTorch versiyonu: {torch.__version__}')"
 echo "    ✅ PyTorch başarıyla kuruldu ve test edildi."
@@ -77,7 +71,6 @@ echo "    ✅ Pillow 9.5.0 başarıyla kuruldu ve test edildi."
 # --- Adım 2.4: Ultralytics ve EasyOCR ---
 echo
 echo "--> Adım 2.4: Ultralytics (YOLO) ve EasyOCR kuruluyor..."
-# Bu kütüphaneler conda-forge kanalında mevcuttur.
 conda install -c conda-forge ultralytics easyocr -y
 echo "--> Doğrulama: Ultralytics ve EasyOCR import ediliyor..."
 python -c "import ultralytics; import easyocr; print('    -> Ultralytics ve EasyOCR başarıyla import edildi.')"
@@ -96,7 +89,6 @@ echo "✅ ADIM 2 BAŞARIYLA TAMAMLANDI!"
 # --- ADIM 3: NİHAİ KONTROL ---
 echo
 echo "--- ADIM 3/3: Tüm Kütüphanelerin Birlikte Çalıştığı Test Ediliyor ---"
-
 python -c "
 print('Nihai uyumluluk testi başlatılıyor...')
 try:
@@ -104,8 +96,8 @@ try:
     import mysql.connector
     from PIL import Image
     print('✅ BAŞARILI: TÜM KRİTİK KÜTÜPHANELER SORUNSUZ ÇALIŞIYOR!')
-except ImportError as e:
-    print(f'❌ NİHAİ TEST BAŞARISIZ: Bir kütüphane import edilemedi: {e}')
+except Exception as e:
+    print(f'❌ NİHAİ TEST BAŞARISIZ: Hata: {e}')
     exit(1)
 "
 echo "✅ ADIM 3 BAŞARIYLA TAMAMLANDI!"
