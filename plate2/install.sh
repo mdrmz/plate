@@ -1,21 +1,33 @@
 #!/bin/bash
-set -e # Hata olursa dur
+
+# Herhangi bir komutta hata olursa script'in çalışmasını anında durdurur.
+set -e
 
 # --- AYARLAR ---
-ENV_NAME="lpr_pi_final_env"
+ENV_NAME="lpr_pi_minimal_env"
 # ---------------
 
 echo "#####################################################################"
-echo "### Piksel Analitik LPR - Raspberry Pi 5 (64-bit) Kurulum Scripti ###"
+echo "### Piksel Analitik LPR - RPi5 Minimal Kurulum Script'i           ###"
 echo "#####################################################################"
 echo
 
-# --- ADIM 1: SİSTEM BAĞIMLILIKLARI ---
-echo "--- ADIM 1/4: Gerekli Sistem Kütüphaneleri Kuruluyor (Şifre istenebilir)... ---"
+# --- ADIM 1: SİSTEM KONTROLÜ VE TEMEL PAKETLER ---
+echo "--- ADIM 1/4: Sistem Kontrolü ve Temel Kurulum (Şifre istenebilir)... ---"
+
+# 64-bit kontrolü
+ARCH_TYPE=$(uname -m)
+if [ "$ARCH_TYPE" != "aarch64" ]; then
+    echo "❌ HATA: Bu script sadece 64-bit (aarch64) Raspberry Pi OS içindir."
+    echo "Mevcut mimari: $ARCH_TYPE"
+    exit 1
+fi
+echo "✅ 64-bit sistem doğrulandı."
+
+# Sadece pip ve venv kurulu mu diye bak, yoksa kur. Diğer dev paketlerini kurmuyoruz.
 sudo apt-get update
-sudo apt-get install -y python3-pip python3-venv libopencv-dev
-sudo apt-get install -y libjpeg-dev libpng-dev libtiff-dev libopenblas-dev libatlas-base-dev gfortran
-echo "✅ Sistem bağımlılıkları başarıyla kuruldu."
+sudo apt-get install -y python3-pip python3-venv
+echo "✅ Temel Python araçları (pip, venv) kontrol edildi/kuruldu."
 echo
 
 # --- ADIM 2: PYTHON SANAL ORTAMINI OLUŞTURMA ---
@@ -36,10 +48,11 @@ echo "--> Adım 3.1: Pip güncelleniyor..."
 pip install --upgrade pip
 
 echo "--> Adım 3.2: PyTorch (ARM64 için) kuruluyor... LÜTFEN SABIRLI OLUN..."
-# Raspberry Pi 5 (ARM64) için en stabil PyTorch kurulum yöntemi (CPU versiyonu)
+# Raspberry Pi (ARM64) için en stabil PyTorch kurulum yöntemi (CPU versiyonu)
 pip install torch torchvision torchaudio --extra-index-url https://download.pytorch.org/whl/cpu
 
 echo "--> Adım 3.3: Diğer tüm kütüphaneler kuruluyor..."
+# OpenCV'yi de pip ile kurmayı deniyoruz. Çoğu zaman çalışır.
 pip install opencv-python ultralytics easyocr Pillow==9.5.0 requests mysql-connector-python
 
 echo "✅ ADIM 3 BAŞARIYLA TAMAMLANDI!"
@@ -52,6 +65,7 @@ print('Nihai uyumluluk testi başlatılıyor...')
 try:
     import torch, cv2, easyocr, ultralytics
     from PIL import Image
+    import requests, mysql.connector
     print('✅ BAŞARILI: TÜM KRİTİK KÜTÜPHANELER SORUNSUZ ÇALIŞIYOR!')
 except Exception as e:
     print(f'❌ NİHAİ TEST BAŞARISIZ: Hata: {e}'); exit(1)
