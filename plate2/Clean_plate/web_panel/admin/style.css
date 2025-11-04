@@ -1,0 +1,24 @@
+body { background-color: #f8f9fa; }
+.navbar { box-shadow: 0 2px 4px rgba(0,0,0,.1); }
+.table-hover tbody tr:hover { background-color: #e9ecef; }
+.img-thumbnail { border: 2px solid #dee2e6; }
+.status-badge {
+    padding: 0.4em 0.7em;
+    border-radius: 12px;
+    font-size: 0.9em;
+    font-weight: 600;
+}
+.status-registered {
+    background-color: #d1e7dd;
+    color: #0a3622;
+    border: 1px solid #a3cfbb;
+}
+.status-unregistered {
+    background-color: #fff3cd;
+    color: #664d03;
+    border: 1px solid #ffe69c;
+}
+.card {
+    border: none;
+    box-shadow: 0 2px 8px rgba(0,0,0,.08);
+}
