@@ -1,191 +1,91 @@
-# 🅿️ HEZARFEN LPR© :: Otonom Araç Tanımlama ve Stratejik Analiz Platformu
+# 🅿️ HEZARFEN LPR© :: Endüstriyel Otonom Geçiş Kontrol Platformu
+## (v2.0 - Tam Otonom "Çift Motorlu" Kenar Cihazı)
 
-[![AI Engine](https://img.shields.io/badge/AI%20Engine-YOLO12%20%2B%20DeepOCR-9932CC?style=for-the-badge)](https://ultralytics.com/)
-[![Deployment](https://img.shields.io/badge/Deployment-Edge%20Ready-blueviolet?style=for-the-badge)](https://www.nvidia.com/en-us/glossary/edge-computing/)
-[![Backend](https://img.shields.io/badge/Platform-LAMP%20Stack-777BB4?style=for-the-badge)](https://www.php.net/)
-[![Status](https://img.shields.io/badge/Status-Aktif%20Geli%C5%9Ftirme-green?style=for-the-badge)](https://github.com/)
+[![AI Engine](https://img.shields.io/badge/AI%20Engine-YOLOv8%20(Dual%20Motor)-9932CC?style=for-the-badge)](https://ultralytics.com/)
+[![Deployment](https://img.shields.io/badge/Deployment-100%25%20Offline%20Edge-blueviolet?style=for-the-badge)](https://www.raspberrypi.com/products/raspberry-pi-5/)
+[![Hardware](https://img.shields.io/badge/Hardware-Raspberry%20Pi%205%20(64--bit)-orange?style=for-the-badge)](https://www.raspberrypi.com/products/raspberry-pi-5/)
+[![Status](https://img.shields.io/badge/Status-G%C3%B6rev%20Kritik%20(7/24)-green?style=for-the-badge)](https://github.com/)
 
-**Hezarfen LPR©**, Piksel Analitik Ar-Ge departmanı tarafından geliştirilen, devrim niteliğinde bir yapay zeka vizyon platformudur. Bu sistem, standart plaka okuma yazılımlarının ötesine geçerek, kenar bilişim (edge computing) cihazları üzerinde otonom olarak çalışan, gerçek zamanlı veri toplayan ve bu veriyi stratejik içgörülere dönüştüren bir zeka motorudur.
+Bu, bir plaka tanıma script'i değildir. Bu, **Piksel Analitik Ar-Ge** departmanının sahadaki en zorlu koşullara (ışık, gölge, açı, donanım uyumsuzlukları) karşı verdiği mücadelenin ve mühendislik zaferinin bir özetidir.
 
----
-
-## 📜 Proje Manifestosu
-
-Gelişen dünyada veri, en değerli varlıktır. Hezarfen LPR, kritik altyapı tesisleri, akıllı şehirler, lojistik merkezleri ve yüksek güvenlikli bölgeler için "durumsal farkındalık" yaratma misyonuyla tasarlanmıştır. Amacımız sadece plakaları okumak değil, bu veriyi analiz ederek anomali tespiti, tahminsel analiz ve operasyonel verimlilik artışı sağlamaktır.
+Bu platform, internete **ihtiyaç duymayan**, tüm kararları milisaniyeler içinde **Raspberry Pi 5** üzerinde otonom olarak alan ve `findContours` gibi ilkel yöntemlerin cehenneminden bizi kurtaran, çift yapay zeka motorlu bir "Edge AI" zeka platformudur.
 
 ---
 
-## 🏛️ Sistem Mimarisi
+## ⚔️ Savaş Alanı: Çılgınlığın Üstesinden Gelmek
 
-Sistem, birbirinden bağımsız ama birbiriyle mükemmel uyum içinde çalışan iki ana modülden oluşur: **Python LPR Motoru** (Kuantum Çekirdeği) ve **PHP Web Platformu** (Orion Komuta Paneli).
+Bu projeye giden yol, başarısızlıklarla ve "çöp" sonuçlarla doluydu. Sahadaki her LPR sisteminin kabusu olan problemleri tek tek tespit ettik ve yendik:
 
-```
-[IP KAMERA] --(MJPEG/RTSP Stream)--> [KUANTUM ÇEKİRDEĞİ (Python LPR)] --(HTTP POST)--> [ORION API (PHP)] --> [VERİTABANI (MariaDB)]
-                                                                                                                         ^
-                                                                                                                         |
-                                                                                                             [ORION KONTROL PANELİ] --(Okuma/Yazma)--> [OPERATÖR]
-```
-Bu mimari, plaka tanıma işleminin yoğun yükünü arayüzden tamamen ayırarak maksimum performans ve stabilite sağlar.
+1.  **DÜŞMAN 1: Klasik OpenCV (`findContours`)**
+    * **Problem:** Işığa, gölgeye ve vida deliklerine karşı aşırı kırılgandı.
+    * **Felaket Sonuç:** `34JILIDIE301` gibi "karakter çorbası" sonuçlar üretiyordu.
+    * **Durum:** **YENİLDİ.**
 
----
+2.  **DÜŞMAN 2: Jenerik OCR Motorları (`EasyOCR` / `Tesseract`)**
+    * **Problem:** Plaka fontlarını tanımak için değil, genel dokümanları okumak için eğitilmişlerdi. `TR` logosu ve vida delikleri kafalarını karıştırıyordu.
+    * **Felaket Sonuç:** `34LD6301`'i `04IO6Z04` veya `34ID6J01` olarak yanlış okuyordu.
+    * **Durum:** **YENİLDİ.**
 
-## ✨ Öne Çıkan Özellikler
-
-### 🧠 **Kuantum Çekirdeği: Kenar Bilişim LPR Motoru** (Python)
-- **🚀 Son Teknoloji Plaka Tespiti:** Özel olarak eğitilmiş **YOLO12** modeli sayesinde, zorlu açılarda ve düşük ışık koşullarında bile yüksek doğrulukla plaka tespiti yapar.
-- **🎯 Yüksek Başarımlı OCR:** Geleneksel OCR motorlarının zorlandığı durumlarda dahi üstün performans gösteren, derin öğrenme tabanlı **EasyOCR** boru hattı ile karakterleri okur.
-- **🔒 Kesintisiz Çalışma:** IP kamera bağlantısı koptuğunda veya bir hata oluştuğunda, çökmek yerine otonom olarak **yeniden bağlanmayı deneyen** akıllı `MJPEGStreamReader` yapısına sahiptir.
-- **⚡ Optimize Edilmiş Performans:** Raspberry Pi gibi kaynakları kısıtlı cihazlar için özel olarak optimize edilmiştir. "Headless" çalışma modu ve periyodik tarama özelliği ile CPU kullanımını minimumda tutar.
-- **🛡️ Modüler Yapı:** Her bileşen (`PlateDetector`, `PlateRecognizer`, `APIManager`) kendi sınıfı içinde izole edilmiştir. Bu, gelecekte OCR motorunu veya API gönderim mantığını değiştirmeyi inanılmaz derecede kolaylaştırır.
-
-### 💻 **Orion: Komuta ve Kontrol Paneli** (PHP)
-- **🌐 Modern ve Etkileşimli Arayüz:** **Bootstrap 5** ile geliştirilmiş, her cihazda kusursuz çalışan, estetik ve kullanıcı dostu bir yönetim paneli.
-- **📊 Anlık Veri Akışı ve Analiz:** Tespit edilen tüm araç hareketlerini anlık olarak listeler. **"Kayıtlı"** ve **"Yabancı"** araçları renk kodlarıyla anında ayırt eder.
-- **🔍 Gelişmiş Arama ve Filtreleme:** Kayıtları; **plaka/isim**, **tarih aralığı**, **kayıt durumu** ve **işlem tipine** göre saniyeler içinde filtreleyerek aradığınız veriye anında ulaşmanızı sağlar.
-- **🛠️ Tam Teşekküllü CRUD Yönetimi:** Sisteme yeni kullanıcılar ve araçlar eklemek, mevcut olanları **düzenlemek** ve silmek için eksiksiz bir arayüz sunar.
-- **🔗 Akıllı Entegrasyon:** "Yabancı" olarak tespit edilen bir plakanın yanındaki tek bir butona basarak, o plakayı anında sisteme kaydetme formunu açar.
-- **🗑️ Güvenli Toplu İşlemler:** Yüzlerce kaydı tek bir tıkla seçip, hem veritabanından hem de sunucudan ilgili resim dosyalarıyla birlikte **kalıcı olarak silme** imkanı.
+3.  **DÜŞMAN 3: Ezberci Modeller (İlk Keras Denemesi)**
+    * **Problem:** Kendi eğittiğimiz ilk sınıflandırma modeli o kadar "overfit" olmuştu ki, harfleri değil, harflerin arkasındaki **arka planı** ezberlemişti.
+    * **Felaket Sonuç:** O efsanevi `arkaplan40YH0A6404` hatası.
+    * **Durum:** **YENİLDİ.**
 
 ---
 
-## 🔧 Kurulum ve Dağıtım (Deployment)
+## 🏆 Nihai Çözüm: "İki Aşamalı Çift Motorlu" YOLO Mimarisi
 
-Bu bölüm, sistemin bir Raspberry Pi 4/5 veya Debian/Ubuntu tabanlı bir sunucuya sıfırdan kurulumunu detaylandırmaktadır.
+Tüm bu düşmanları yenmek için, sıfırdan, devrim niteliğinde bir mimari tasarladık. Artık "karakter ayırma" (segmentasyon) işini, `findContours` gibi ilkel yöntemlere değil, doğrudan ikinci bir yapay zeka motoruna bıraktık.
 
-### Ön Gereksinimler
-- Raspberry Pi 4 (4GB+) veya Debian/Ubuntu tabanlı bir Linux sistemi.
-- İnternet bağlantısı.
-- `sudo` yetkilerine sahip bir kullanıcı.
+* **MOTOR 1 (Plaka-YOLO - `best.pt`):**
+    * **Görevi:** Tam kamera görüntüsünü alır ve sahnedeki **plakanın yerini** %99 doğrulukla bulur, kırpar.
 
-### 1. Web Sunucusu Kurulumu (LAMP Stack)
-```bash
-# Sistem paketlerini güncelle
-sudo apt update && sudo apt upgrade -y
+* **MOTOR 2 (Karakter-YOLO - `char2.pt`):**
+    * **Görevi:** Motor 1'in kırptığı o küçük plaka resmini alır. `findContours`'un aksine, ışık veya gölgeden etkilenmez. Sadece plaka fontlarını tanımak için eğitilmiş bu canavar, plakanın içindeki **her bir karakteri** tek tek bulur ve **ne olduğunu** söyler (`3`, `4`, `L`, `D`...).
 
-# Gerekli web sunucusu bileşenlerini kur
-sudo apt install -y apache2 mariadb-server php libapache2-mod-php php-mysql
-
-# Apache ve MariaDB servislerini etkinleştir ve başlat
-sudo systemctl enable apache2
-sudo systemctl enable mariadb
-sudo systemctl start apache2
-sudo systemctl start mariadb
-
-# MariaDB için temel güvenlik ayarlarını yap
-sudo mysql_secure_installation
-```
-
-### 2. Veritabanı Yapılandırması
-MariaDB'ye bağlanarak gerekli veritabanını ve tabloları oluşturun.
-```bash
-sudo mysql -u root -p
-```
-Açılan komut satırına aşağıdaki SQL kodlarını yapıştırın:
-```sql
-CREATE DATABASE plaka_sistemi CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-USE plaka_sistemi;
-
-CREATE TABLE `kullanicilar` (
-  `id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-  `ad` VARCHAR(100) NOT NULL,
-  `soyad` VARCHAR(100) NOT NULL,
-  `telefon` VARCHAR(20) DEFAULT NULL,
-  `kayit_tarihi` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP
-) ENGINE=InnoDB;
-
-CREATE TABLE `araclar` (
-  `id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-  `plaka` VARCHAR(20) NOT NULL UNIQUE,
-  `kullanici_id` INT NOT NULL,
-  `ozel_erisim` TINYINT(1) NOT NULL DEFAULT 0 COMMENT '0: Normal, 1: Kapıyı açma yetkisi var',
-  FOREIGN KEY (`kullanici_id`) REFERENCES `kullanicilar` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB;
-
-CREATE TABLE `giris_cikis_loglari` (
-  `id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-  `plaka` VARCHAR(20) NOT NULL,
-  `arac_id` INT DEFAULT NULL,
-  `islem_tipi` ENUM('giris', 'cikis') NOT NULL,
-  `islem_zamani` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `resim_yolu` VARCHAR(255) DEFAULT NULL,
-  FOREIGN KEY (`arac_id`) REFERENCES `araclar` (`id`) ON DELETE SET NULL
-) ENGINE=InnoDB;
-
-EXIT;
-```
-
-### 3. Web Paneli Dosyalarının Dağıtımı
-Projenin `web_panel` klasöründeki dosyaları Apache'nin ana dizinine kopyalayın.
-```bash
-# /path/to/project/ kök dizininde olduğunuzu varsayarak:
-sudo cp -R web_panel/* /var/www/html/
-
-# `uploads` klasörüne yazma izni ver
-sudo chown -R www-data:www-data /var/www/html/uploads
-sudo chmod -R 775 /var/www/html/uploads
-```
-**`web_panel/api/db_config.php`** dosyasını kendi veritabanı bilgilerinizle güncellemeyi unutmayın.
-
-### 4. Python Ortamı Kurulumu
-Plaka tanıma uygulamasının çalışacağı izole ortamı oluşturun.
-```bash
-# Gerekli sistem bağımlılıklarını kur
-sudo apt install -y python3-pip python3-venv libopencv-dev python3-opencv
-
-# Projenin Python klasörüne git ve sanal ortam oluştur
-cd /path/to/project/python_lpr
-python3 -m venv lpr_env
-source lpr_env/bin/activate
-
-# Gerekli Python kütüphanelerini yükle (Bu adım uzun sürebilir!)
-pip install --upgrade pip
-pip install opencv-python ultralytics easyocr torch torchvision requests mysql-connector-python
-```
+Bu mimari, `TensorFlow`, `Keras`, `EasyOCR`, `Tesseract` gibi onlarca ağır ve problemli kütüphaneyi çöpe atmamızı sağladı. Sistem artık **sadece `ultralytics` (YOLO) ve `opencv`** ile "mis gibi" çalışıyor.
 
 ---
 
-## ⚙️ Yapılandırma
+## 🤖 Saha Testi: Raspberry Pi 5'in Çelik İradesi (Kurulum & Stabilite)
 
-`python_lpr/run_headless.py` dosyasını açın ve en üstteki `AYARLAR` bölümünü yapılandırın:
-- `CAMERA_SOURCE`: Kameranızın RTSP/HTTP URL'sini veya webcam numarasını (`0`, `1`...) girin.
-- `MODEL_PATH`: `best.pt` modelinin tam yolunu girin.
-- `API_URL`: Web panelinizin `log_event.php` dosyasının tam URL'sini girin (`http://localhost/api/log_event.php`).
+Bu zekayı sahaya kurmak, kod yazmaktan daha zordu. Pi 5'i, 7/24 çalışacak otonom bir "görev kritik" cihaza dönüştürdük:
 
----
+1.  **Otonom Başlangıç & Kendi Kendini İyileştirme (`systemd`):**
+    * Sistem için özel bir `lpr-motor.service` yazdık. Raspberry Pi'nin fişi çekilip takılsa bile, sistem **otomatik olarak başlar**.
+    * `Restart=on-failure` parametresi sayesinde, RTSP akışı kopsa veya Python script'i beklenmedik bir hata ile **çökse bile**, `systemd` 15 saniye içinde servisi **otomatik olarak yeniden başlatır**. Sistem kendi kendini iyileştirir.
 
-## 📡 API Uç Noktası (`/api/log_event.php`)
+2.  **Önleyici Bakım & Isı Yönetimi (`cronjob`):**
+    * Yapay zeka motorlarının uzun süreli çalışması RAM'i doldurabilir ve bu da Pi'nin ısınmasına neden olabilir.
+    * Bunu engellemek için, bir `cronjob` (zamanlanmış görev) kurduk. Sistem, her gece 00:00'da (veya saatte bir) kendini **planlı olarak yeniden başlatır**. Bu, bellek (RAM) sızıntılarını temizler ve Pi'nin her zaman taze ve serin kalmasını sağlar.
 
-- **Method:** `POST`
-- **Content-Type:** `multipart/form-data`
-- **Parametreler:**
-  - `plate` (string, zorunlu): Tespit edilen plaka metni.
-  - `gate` (string, zorunlu): İşlemin yapıldığı kapı ID'si ('giris', 'cikis').
-  - `image` (file, zorunlu): Plakanın tespit edildiği anın JPEG formatındaki görüntüsü.
-- **Başarılı Cevap (`200 OK`):**
-  ```json
-  {"status":"success","message":"Log başarıyla kaydedildi: Plaka=34ABC123, İşlem=giris"}
-  ```
-- **Hatalı Cevap (`200 OK` veya `400 Bad Request`):**
-  ```json
-  {"status":"error","message":"Eksik parametreler."}
-  ```
+3.  **Temiz Kurulum (64-bit Gücü):**
+    * Tüm `armv7l` (32-bit) hatalarını geride bıraktık. Pi 5'e **64-bit** işletim sistemi kurduk ve `install_pi_final.sh` ile sadece ve sadece ihtiyacımız olan (PyTorch, Ultralytics, OpenCV) kütüphaneleri kuran temiz bir sanal ortam (`lpr_yolo_env`) oluşturduk.
 
 ---
 
-## 🔭 Yol Haritası (Roadmap) ve Gelecek Vizyonu
+## 🔩 Donanım Mükemmelliği: Titremeyen Servo (`gate_controller`)
 
-Hezarfen LPR, sürekli gelişen bir platformdur. Gelecek sürümlerde planlanan modüller:
+Projenin en inatçı sorunlarından biri de servo motoruydu. Zayıf sinyaller nedeniyle "titreme" (`jitter`) yapıyor veya tuşa tam basmıyordu. Bunu da aştık:
 
--   [ ] **Q1 2026: Isı Haritası (Heatmap) Analizi**
-    -   Tespit edilen araçların yoğunluk ve bekleme sürelerini coğrafi bir harita üzerinde görselleştirerek, tesis içindeki "sıcak noktaları" belirleme.
--   [ ] **Q2 2026: Anomali Tespit Motoru**
-    -   Belirli bir bölgede beklenenden uzun süre kalan, "beyaz listede" olmayan veya şüpheli hareket patternleri sergileyen araçların yapay zeka tarafından otomatik olarak işaretlenmesi.
--   [ ] **Q3 2026: Tahminsel Analiz Modülü**
-    -   Tarihsel veriyi analiz ederek, gelecekteki yoğunluk anlarını ve pik saatleri **tahmin eden** bir makine öğrenmesi modeli.
--   [ ] **Q4 2026: Merkezi Filo Yönetimi**
-    -   Birden fazla lokasyondaki Hezarfen LPR motorlarını tek bir merkezi `Orion` panelinden yönetme ve tüm veriyi birleşik bir "Veri Gölü" (Data Lake) üzerinde toplama.
+1.  **Güçlü Sinyal (`PiGPIOFactory`):** Standart `gpiozero` kütüphanesi yerine, donanımsal PWM (darbe) üreten `PiGPIOFactory` kütüphanesini kullandık. Bu, Pi'den servoya giden sinyali **kaya gibi stabil** hale getirdi ve titremeyi %100 yok etti.
+2.  **Yeterli Güç (Harici Amper):** Servonun, Pi'nin 5V pininden değil, **harici bir 5V güç kaynağından** (yeterli Amper sağlayan) beslenmesini sağladık.
+
+**Sonuç:** Servo motor artık her seferinde kusursuz, kararlı ve güçlü bir şekilde kapı kumandasının tuşuna basıyor.
 
 ---
 
-*Bu teknoloji platformu, **Mehmet Durmaz**'ın liderliğinde, **Piksel Analitik**'in "Geleceği Bugünden Tasarlama" vizyonuyla geliştirilmektedir.*
-*© 2025 Piksel Analitik - Stratejik Görüntü İşleme ve Yapay Zeka Çözümleri*
+## ✨ Nihai Platform Özellikleri (v2.0 - Otonom)
+
+* **%100 Offline:** İnternet olmadan, `allowed_plates.txt` dosyasından plaka okuyor.
+* **Otonom Kayıt:** Tüm giriş/çıkışları `gate_log.csv` dosyasına otomatik kaydediyor.
+* **Çift Kamera Desteği:** İki kamerayı (Giriş/Çıkış) aynı anda, takılmadan işliyor.
+* **Akıllı Tanıma:** Plakaları 1 harf hatayla (Levenshtein) tanıyıp gürültüyü (modelin bulduğu `license plates` yazısını) filtreliyor.
+* **Tam Otomatik:** RPi açıldığında `systemd` ile kendi kendine başlıyor, çökerse yeniden başlıyor.
+* **Stabil Bakım:** `cronjob` ile periyodik RAM temizliği (restart) yapıyor.
+* **Güçlü Donanım:** `PiGPIOFactory` ve Harici Güç sayesinde servo motor artık kusursuz çalışıyor.
+
+---
+
+*Bu teknoloji platformu, **Mehmet Durmaz**'ın liderliğinde, aylarca süren Ar-Ge, deneme-yanılma ve sayısız "çökme"nin ardından, **Piksel Analitik**'in "Geleceği Bugünden Tasarlama" vizyonuyla geliştirilmiştir.*
+*© 2025 Piksel Analitik - Otonom Kenar Bilişim Çözümleri*
